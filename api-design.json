@@ -1,0 +1,151 @@
+{
+  "api_name": "Google Brew Coffee Rewards Platform API",
+  "version": "v1.0.0",
+  "base_url": "https://api.googlebrew.com/v1",
+  "anti_fraud_enforcement": {
+    "rule": "Maximum of 3 redemptions per day per customer",
+    "enforcement_layer": "Server-side only. This rule must be evaluated in a database transaction context with write lock (SELECT FOR UPDATE) on the customer's redemptions for the current calendar day to prevent race conditions and client-side bypasses."
+  },
+  "endpoints": [
+    {
+      "path": "/customers/{customerId}/dashboard",
+      "method": "GET",
+      "description": "Retrieves the rewards dashboard for a customer containing tier, point balance, reward progress, and available rewards.",
+      "request": {
+        "path_parameters": {
+          "customerId": "string (UUIDv4)"
+        },
+        "headers": {
+          "Authorization": "Bearer <JWT_TOKEN>"
+        }
+      },
+      "response": {
+        "status_code": 200,
+        "body": {
+          "customer": {
+            "id": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+            "name": "Jane Doe",
+            "email": "janedoe@example.com",
+            "points": 215,
+            "tier": "Gold",
+            "progress_to_next_reward": {
+              "current_points_in_cycle": 15,
+              "points_needed": 35,
+              "unlocked_rewards_available": 4
+            }
+          },
+          "dashboard_summary": {
+            "points_earned_all_time": 415,
+            "rewards_redeemed_all_time": 4,
+            "redemptions_today": 1
+          }
+        }
+      }
+    },
+    {
+      "path": "/purchases",
+      "method": "POST",
+      "description": "Records a new purchase, awards points (1 point per $1 spent), and updates the customer's reward eligibility and tier status.",
+      "request": {
+        "headers": {
+          "Authorization": "Bearer <JWT_TOKEN>",
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "customerId": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+          "amount": 54.50,
+          "currency": "USD",
+          "transaction_reference": "tx_992104820"
+        }
+      },
+      "response": {
+        "status_code": 201,
+        "body": {
+          "purchaseId": "c3a9f02e-1b7d-4ebd-811c-223652d8bcf1",
+          "customerId": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+          "amount": 54.50,
+          "points_earned": 54,
+          "new_points_balance": 269,
+          "new_tier": "Gold",
+          "rewards_unlocked": 1,
+          "created_at": "2026-06-12T17:06:00Z"
+        }
+      }
+    },
+    {
+      "path": "/customers/{customerId}/rewards",
+      "method": "GET",
+      "description": "Lists all rewards associated with the customer, detailing their status (unlocked, redeemed, or expired).",
+      "request": {
+        "path_parameters": {
+          "customerId": "string (UUIDv4)"
+        },
+        "headers": {
+          "Authorization": "Bearer <JWT_TOKEN>"
+        }
+      },
+      "response": {
+        "status_code": 200,
+        "body": {
+          "rewards": [
+            {
+              "rewardId": "a2444b02-5e4a-4e20-8ee0-0f2c0792dbca",
+              "name": "Free Coffee Reward",
+              "status": "unlocked",
+              "points_spent": 50,
+              "unlocked_at": "2026-06-11T09:30:00Z",
+              "redeemed_at": null
+            },
+            {
+              "rewardId": "e5b15b3c-ff1a-4712-9c12-3212ab09bca3",
+              "name": "Free Coffee Reward",
+              "status": "redeemed",
+              "points_spent": 50,
+              "unlocked_at": "2026-06-01T08:15:00Z",
+              "redeemed_at": "2026-06-02T10:00:00Z"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "path": "/customers/{customerId}/redemptions",
+      "method": "POST",
+      "description": "Initiates a reward redemption. The server validates user ownership of the reward, and verifies that the 3 redemptions per customer per day limit has not been reached.",
+      "request": {
+        "path_parameters": {
+          "customerId": "string (UUIDv4)"
+        },
+        "headers": {
+          "Authorization": "Bearer <JWT_TOKEN>",
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "rewardId": "a2444b02-5e4a-4e20-8ee0-0f2c0792dbca"
+        }
+      },
+      "response": {
+        "status_code": 201,
+        "body": {
+          "redemptionId": "f78a10b4-3a21-4f11-9eab-563b782982ff",
+          "customerId": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+          "rewardId": "a2444b02-5e4a-4e20-8ee0-0f2c0792dbca",
+          "redeemed_at": "2026-06-12T17:06:05Z",
+          "redemptions_remaining_today": 2
+        }
+      },
+      "error_responses": [
+        {
+          "status_code": 400,
+          "error": "INVALID_REWARD",
+          "message": "The specified reward does not exist, belongs to another customer, or has already been redeemed."
+        },
+        {
+          "status_code": 429,
+          "error": "DAILY_REDEMPTION_LIMIT_EXCEEDED",
+          "message": "Anti-fraud block: Maximum limit of 3 redemptions per day has been reached for this customer."
+        }
+      ]
+    }
+  ]
+}

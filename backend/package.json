@@ -1,0 +1,19 @@
+{
+  "name": "google-brew-backend",
+  "version": "1.0.0",
+  "description": "Google Brew - Coffee Rewards Platform Backend",
+  "main": "src/server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "test": "node --test test-api.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}
