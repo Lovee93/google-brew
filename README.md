@@ -1,6 +1,6 @@
 # Google Brew ☕️ - Coffee Rewards Platform
 
-Welcome to **Google Brew**, a modern, real-time coffee loyalty and rewards platform built in **10 minutes** as a showcase for the *Build with Next* series.
+Welcome to **Google Brew**, a modern, real-time coffee loyalty and rewards platform built in **10 minutes** as a showcase for the *Build the Next* series.
 
 This repository demonstrates a complete transition from the **outer loop** (spec-driven backend generation) to the **inner loop** (IDE development, component refactoring, and integration fixes).
 
@@ -70,7 +70,7 @@ This application is designed to be deployed directly to **Google Cloud Run**.
 ### 1. Build & Deploy Directly from Source
 You can build and deploy the containerized application to Cloud Run with a single command:
 ```bash
-gcloud run deploy google-brew \
+gcloud run deploy coffee-brew \
   --source . \
   --port 3000 \
   --allow-unauthenticated
@@ -80,11 +80,11 @@ gcloud run deploy google-brew \
 Alternatively, you can build the image with Cloud Builds and deploy:
 ```bash
 # Build the image in the cloud
-gcloud builds submit --tag gcr.io/YOUR_PROJECT_ID/google-brew .
+gcloud builds submit --tag gcr.io/YOUR_PROJECT_ID/coffee-brew .
 
 # Deploy the image to Cloud Run
-gcloud run deploy google-brew \
-  --image gcr.io/YOUR_PROJECT_ID/google-brew \
+gcloud run deploy coffee-brew \
+  --image gcr.io/YOUR_PROJECT_ID/coffee-brew \
   --port 3000 \
   --allow-unauthenticated
 ```
